@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 class WeatherController extends Controller
 {
@@ -11,9 +11,12 @@ class WeatherController extends Controller
     {
         $apiKey = env('VITE_API_KEY');
         $apiURL = env('VITE_API_URL');
-        $url    = $apiURL . "/find?q={$city}&appid={$apiKey}&units=metric";
 
-        $response = Http::get($url);
+        $response = Http::get( $apiURL . '/find', [
+            'q'     => $city,
+            'units' => 'metric',
+            'appid' => $apiKey,//config('services.weather.api_key')
+        ]);
 
         if ($response->ok()) {
             return response()->json($response->json());
@@ -28,9 +31,13 @@ class WeatherController extends Controller
         $lon = $request->query('lon');
         $apiKey = env('VITE_API_KEY');
         $apiURL = env('VITE_API_URL');
-        $url = $apiURL . "/forecast?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric";
 
-        $response = Http::get($url);
+        $response = Http::get( $apiURL . '/forecast', [
+            'lat'     => $lat,
+            'lon'     => $lon,
+            'units' => 'metric',
+            'appid' => $apiKey,//config('services.weather.api_key')
+        ]);
 
         if ($response->successful()) {
             return response()->json($response->json());
@@ -39,3 +46,6 @@ class WeatherController extends Controller
         return response()->json(['error' => 'Unable to fetch weather data'], 500);
     }
 }
+
+
+

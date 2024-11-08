@@ -5,7 +5,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 export const getWeather = async (lat: number, lon: number) => {
     try {
-        const response = await axios.get(`/weather`, {
+        const response = await axios.get(`/api/weather`, {
             params: { lat, lon }
         });
         return response.data;
@@ -18,7 +18,7 @@ export const getWeather = async (lat: number, lon: number) => {
 export const findCity = async (city: string) => {
     try {
         const encodedCity = encodeURIComponent(city);
-        const response = await axios.get(`/find/${encodedCity}`);
+        const response = await axios.get(`/api/find/${encodedCity}`);
         return response.data;
     } catch (error) {
         console.error("Error finding city:", error);

@@ -19,6 +19,3 @@ Route::middleware( [
         return Inertia::render( 'Dashboard' );
     } )->name( 'dashboard' );
 } );
-
-Route::get('/find/{city}', [ WeatherController::class, 'findCity' ] );
-Route::get( '/weather', [ WeatherController::class, 'getWeather' ] );
