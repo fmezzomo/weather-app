@@ -24,7 +24,9 @@
                 <img :src="'https://openweathermap.org/images/flags/' + option.sys.country.toLowerCase() + '.png'" class="flag">
               </span>
               <span>{{ roundedTemp(option.main.temp) }}°C</span>
-              <span v-html="getWeatherIcon(option.weather[0].main)"></span>
+              <span>
+                <img :src="getWeatherIconUrl(option.weather[0].icon)" :alt="option.weather[0].description" width="50" height="50">
+              </span>
               <span class="sub" style="width: 150px; text-align: right;">
                 {{ option.coord.lat }}, {{ option.coord.lon }}
               </span>
@@ -50,75 +52,75 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { findCity, getWeather } from '@/services/WeatherService';
-import { City, WeatherData } from '@/services/Types';
+  import { defineComponent, ref } from 'vue';
+  import { findCity, getWeather } from '@/services/WeatherService';
+  import { City, WeatherData } from '@/services/Types';
 
-export default defineComponent({
-  name: 'Weather',
-  setup() {
-    const city = ref('');
-    const cityOptions = ref<City[]>([]);
-    const weatherData = ref<WeatherData | null>(null);
-    const errorMessage = ref<string | null>(null);
+  export default defineComponent({
+    name: 'Weather',
+    setup() {
+      const city = ref<string>('');
+      const cityOptions = ref<City[]>([]);
+      const weatherData = ref<WeatherData | null>(null);
+      const errorMessage = ref<string | null>(null);
 
-    const fetchCityOptions = async () => {
-      try {
-        const data = await findCity(city.value);
-        if (data.count > 1) {
-          cityOptions.value = data.list;
-          weatherData.value = null;
-          errorMessage.value = null;
-        } else if (data.count === 1) {
-          await fetchWeatherForecast(data.list[0].coord.lat, data.list[0].coord.lon);
-        } else {
-          errorMessage.value = 'City not found';
+      const fetchCityOptions = async (): Promise<void> => {
+        if (!city.value) return; // Previne chamadas desnecessárias
+        try {
+          const data = await findCity(city.value);
+          if (data.count > 1) {
+            cityOptions.value = data.list;
+            resetWeatherData();
+          } else if (data.count === 1) {
+            await fetchWeatherForecast(data.list[0].coord.lat, data.list[0].coord.lon);
+          } else {
+            errorMessage.value = 'City not found';
+          }
+        } catch (error: any) {
+          handleError('Error fetching city options', error);
         }
-      } catch (error) {
-        errorMessage.value = 'Error fetching city options: ' + error.message;
-        console.error("Error fetching city options:", error);
-      }
-    };
-
-    const selectCity = async (selectedCity: City) => {
-      await fetchWeatherForecast(selectedCity.coord.lat, selectedCity.coord.lon);
-    };
-
-    const fetchWeatherForecast = async (lat: number, lon: number) => {
-      try {
-        weatherData.value = await getWeather(lat, lon);
-        errorMessage.value = null;
-      } catch (error) {
-        errorMessage.value = 'Failed to fetch weather forecast: ' + error.message;
-        console.error("Failed to fetch weather forecast", error);
-      }
-    };
-
-    return { city, cityOptions, weatherData, errorMessage, fetchCityOptions, selectCity };
-  },
-
-
-  methods: {
-    roundedTemp(temp) {
-      return Math.round(temp);
-    },
-    getWeatherIcon(weatherCondition) {
-      const icons = {
-        Clear: `
-          <svg width="50px" height="50px" viewBox="0 0 148 148" class="owm-weather-icon">
-            <path d="M65.03 60.514c.642 0 1.27.057 1.889.143a15.476 15.476 0 01-.344-3.23c0-8.524 6.91-15.437 15.435-15.437 8.294 0 15.042 6.547 15.402 14.752a9.224 9.224 0 016.208-2.404 9.263 9.263 0 019.263 9.263 9.165 9.165 0 01-.619 3.305c.7-.14 1.423-.218 2.161-.218 5.97 0 10.806 4.839 10.806 10.805 0 5.97-4.836 10.806-10.806 10.806H65.031c-7.674 0-13.893-6.219-13.893-13.893 0-7.671 6.219-13.892 13.893-13.892" fill="#3b3c40"></path>
-          </svg>`,
-        Clouds: `
-          <svg width="50px" height="50px" viewBox="0 0 148 148" class="owm-weather-icon">
-            <!-- SVG path para o ícone de nuvens -->
-            <path d="M40 80.5c0-22 18-40 40-40s40 18 40 40H40z" fill="#b0bec5"></path>
-          </svg>`,
       };
-      
-      return icons[weatherCondition] || '<svg width="50px" height="50px"></svg>';
+
+      const selectCity = async (selectedCity: City): Promise<void> => {
+        await fetchWeatherForecast(selectedCity.coord.lat, selectedCity.coord.lon);
+      };
+
+      const fetchWeatherForecast = async (lat: number, lon: number): Promise<void> => {
+        try {
+          weatherData.value = await getWeather(lat, lon);
+          errorMessage.value = null;
+        } catch (error: any) {
+          handleError('Failed to fetch weather forecast', error);
+        }
+      };
+
+      const resetWeatherData = (): void => {
+        weatherData.value = null;
+        errorMessage.value = null;
+      };
+
+      const handleError = (message: string, error: any): void => {
+        errorMessage.value = `${message}: ${error.message}`;
+        console.error(message, error);
+      };
+
+      const roundedTemp = (temp: number): number => Math.round(temp);
+
+      const getWeatherIconUrl = (iconCode: string): string =>
+        `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+      return {
+        city,
+        cityOptions,
+        weatherData,
+        errorMessage,
+        fetchCityOptions,
+        selectCity,
+        roundedTemp,
+        getWeatherIconUrl
+      };
     }
-  }
-});
+  });
 </script>
 
 <style scoped>
