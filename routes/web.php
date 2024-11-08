@@ -20,4 +20,5 @@ Route::middleware( [
     } )->name( 'dashboard' );
 } );
 
+Route::get('/find/{city}', [ WeatherController::class, 'findCity' ] );
 Route::get( '/weather/{city}', [ WeatherController::class, 'getWeather' ] );
