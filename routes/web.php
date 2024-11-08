@@ -21,4 +21,4 @@ Route::middleware( [
 } );
 
 Route::get('/find/{city}', [ WeatherController::class, 'findCity' ] );
-Route::get( '/weather/{city}', [ WeatherController::class, 'getWeather' ] );
+Route::get( '/weather', [ WeatherController::class, 'getWeather' ] );

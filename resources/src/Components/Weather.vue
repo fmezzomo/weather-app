@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="fetchCityOptions">
       <label for="city">City:</label>
       <input
         type="text"
@@ -12,10 +12,10 @@
       <button type="submit">Get Weather</button>
     </form>
 
-    <div v-if="options.length > 1">
+    <div v-if="cityOptions.length > 1">
       <h3>Select a City</h3>
       <ul>
-        <li v-for="option in options" :key="option.id">
+        <li v-for="option in cityOptions" :key="option.id">
           <button @click="selectCity(option)">
             {{ option.name }}, {{ option.sys.country }} (Lat: {{ option.coord.lat }}, Lon: {{ option.coord.lon }})
           </button>
@@ -35,53 +35,46 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { findCity, getWeather } from '@/services/WeatherService';
+import { City, WeatherData } from '@/services/Types';
 
-export default {
+export default defineComponent({
+  name: 'Weather',
   setup() {
     const city = ref('');
-    const options = ref([]);
-    const weatherData = ref(null);
+    const cityOptions = ref<City[]>([]);
+    const weatherData = ref<WeatherData | null>(null);
 
-    const submitForm = async () => {
+    const fetchCityOptions = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/find/${city.value}`);
-        const data = await response.json();
-
+        const data = await findCity(city.value);
         if (data.count > 1) {
-          options.value = data.list; // Múltiplas opções para o usuário escolher
+          cityOptions.value = data.list;
           weatherData.value = null;
         } else if (data.count === 1) {
-          // Uma cidade encontrada, buscar a previsão diretamente
-          await getForecast(data.list[0].name);
+          await fetchWeatherForecast(data.list[0].coord.lat, data.list[0].coord.lon);
         } else {
           alert('City not found');
         }
       } catch (error) {
-        console.error('Error fetching city options:', error);
+        console.error("Error fetching city options:", error);
       }
     };
 
-    const selectCity = async (selectedCity: any) => {
-      await getForecast(selectedCity.name);
+    const selectCity = async (selectedCity: City) => {
+      await fetchWeatherForecast(selectedCity.coord.lat, selectedCity.coord.lon);
     };
 
-    const getForecast = async (cityName: string) => {
+    const fetchWeatherForecast = async (lat: number, lon: number) => {
       try {
-        const response = await fetch(`http://localhost:8000/weather/${cityName}`);
-        const data = await response.json();
-        weatherData.value = data;
-        options.value = [];
+        weatherData.value = await getWeather(lat, lon);
       } catch (error) {
-        console.error('Error fetching forecast data:', error);
+        console.error("Failed to fetch weather forecast", error);
       }
     };
 
-    return { city, submitForm, options, selectCity, weatherData };
+    return { city, cityOptions, weatherData, fetchCityOptions, selectCity };
   }
-};
+});
 </script>
-
-<style scoped>
-/* Adicione o estilo necessário aqui */
-</style>
