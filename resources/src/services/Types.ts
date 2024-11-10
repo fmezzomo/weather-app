@@ -25,4 +25,9 @@ export interface City {
       }>;
     }>;
   }
+
+  export interface FavoriteCity {
+    userID: number;
+    city: City;
+  }
   
