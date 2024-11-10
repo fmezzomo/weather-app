@@ -32,8 +32,9 @@
               </span>
               <span>
                 <button 
-                  @click.stop="addFavoriteCity(option as City)" 
-                  :class="['favorite-btn', { favorite: isFavorite(option) }]">
+                  @click.stop="isFavorite(option) ? removeFavoriteCity(option) : addFavoriteCity(option)" 
+                  :class="['favorite-btn', { favorite: isFavorite(option) }]"
+                  :disabled="!isFavorite(option) && !canAddFavorite">
                   ♥
                 </button>
               </span>
@@ -74,19 +75,23 @@
       const favorites = ref<FavoriteCity[]>([]);
 
       // Get favorites
-      onMounted(async () => {
-        try {
-          const favoriteCities = await getFavorites();
-          favorites.value = favoriteCities;
-        } catch (error) {
-          console.error('Erro ao buscar favoritos:', error);
-        }
+      onMounted(() => {
+        fetchFavorites();
       });
 
       const canAddFavorite = computed(() => favorites.value.length < 3);
 
       const isFavorite = (city: City) => {
         return favorites.value.some(favorite => favorite.city_id === city.id);
+      };
+
+      const fetchFavorites = async () => {
+        try {
+          const favoriteCities = await getFavorites();
+          favorites.value = favoriteCities;
+        } catch (error) {
+          console.error('Fail to fetch favorites:', error);
+        }
       };
 
       const addFavoriteCity = async (city: City) => {
@@ -96,6 +101,7 @@
           if (response && response.success) {
             //props.favorites.push(response.favorite);
             // Success message
+            fetchFavorites();
           } else {
             /*const index = props.favorites.findIndex(fav => fav.city_id === city.id);
             if (index !== -1) props.favorites.splice(index, 1);*/
@@ -107,7 +113,13 @@
       }
 
       const removeFavoriteCity = async (city: City) => {
+        const response = await removeFavorite(city.id);
 
+        if (response && response.success) {
+          fetchFavorites();
+        } else {
+
+        }
       }
 
       const fetchCityOptions = async (): Promise<void> => {

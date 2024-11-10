@@ -11,6 +11,7 @@ export async function addFavorite(city: City) {
   return response.data;
 }
 
-export async function removeFavorite(favoriteId: number): Promise<void> {
-  await axios.delete(`/api/favorites/${favoriteId}`);
+export async function removeFavorite(cityId: number): Promise<void> {
+  const response = await axios.delete(`/api/favorites/${cityId}`);
+  return response.data;
 }

@@ -14,4 +14,4 @@ Route::get( '/weather', [ WeatherController::class, 'getWeather' ] );
 
 Route::get('/favorites', [FavoriteCityController::class, 'index']);
 Route::post('/favorites', [FavoriteCityController::class, 'store']);
-Route::delete('/favorites/{id}', [FavoriteCityController::class, 'destroy']);
+Route::delete('/favorites/{cityId}', [FavoriteCityController::class, 'destroy']);

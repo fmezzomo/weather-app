@@ -78,7 +78,6 @@ class FavoriteCity extends Model
                 'message' => 'City removed from favorites.'
             ], 200 );
         } catch ( QueryException $e ) {
-            // Caso ocorra algum erro, retornar erro
             return response()->json([
                 'success' => false,
                 'message' => 'Fail to remove the favorite city: ' . $e->getMessage()
