@@ -3,7 +3,6 @@ import { City, FavoriteCity } from './Types';
 
 export async function getFavorites(): Promise<FavoriteCity[]> {
   const response = await axios.get('/api/favorites');
-  console.table(response.data);
   return response.data;
 }
 

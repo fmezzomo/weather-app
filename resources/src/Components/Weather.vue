@@ -16,8 +16,8 @@
     <div v-if="!weatherData && cityOptions.length > 1" class="city-options">
       <h3>Select a City</h3>
       <ul>
-        <li v-for="option in cityOptions" :key="option.id">
-          <button @click="selectCity(option as City)" class="city-option-button">
+        <li v-for="option in cityOptions" :key="option.id" @click="selectCity(option)">
+          <div class="city-option-button">
             <div class="city-option-info">
               <span style="width: 140px;">
                 {{ option.name }}, {{ option.sys.country }}
@@ -30,8 +30,15 @@
               <span class="sub" style="width: 150px; text-align: right;">
                 {{ option.coord.lat }}, {{ option.coord.lon }}
               </span>
+              <span>
+                <button 
+                  @click.stop="addFavoriteCity(option as City)" 
+                  :class="['favorite-btn', { favorite: isFavorite(option) }]">
+                  ♥
+                </button>
+              </span>
             </div>
-          </button>
+          </div>
         </li>
       </ul>
     </div>
@@ -52,9 +59,10 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, ref, computed, onMounted } from 'vue';
   import { findCity, getWeather } from '@/services/WeatherService';
-  import { City, WeatherData } from '@/services/Types';
+  import { getFavorites, addFavorite, removeFavorite } from '@/services/FavoriteService';
+  import { City, WeatherData, FavoriteCity } from '@/services/Types';
 
   export default defineComponent({
     name: 'Weather',
@@ -62,10 +70,48 @@
       const city = ref<string>('');
       const cityOptions = ref<City[]>([]);
       const weatherData = ref<WeatherData | null>(null);
-      const errorMessage = ref<string | null>(null);
+      const errorMessage = ref<string | null>(null);  
+      const favorites = ref<FavoriteCity[]>([]);
+
+      // Get favorites
+      onMounted(async () => {
+        try {
+          const favoriteCities = await getFavorites();
+          favorites.value = favoriteCities;
+        } catch (error) {
+          console.error('Erro ao buscar favoritos:', error);
+        }
+      });
+
+      const canAddFavorite = computed(() => favorites.value.length < 3);
+
+      const isFavorite = (city: City) => {
+        return favorites.value.some(favorite => favorite.city_id === city.id);
+      };
+
+      const addFavoriteCity = async (city: City) => {
+       try {
+          const response = await addFavorite(city);
+
+          if (response && response.success) {
+            //props.favorites.push(response.favorite);
+            // Success message
+          } else {
+            /*const index = props.favorites.findIndex(fav => fav.city_id === city.id);
+            if (index !== -1) props.favorites.splice(index, 1);*/
+            // Error message
+          }
+        } catch (error) {
+          handleError("Fail to add city:", error);
+        }
+      }
+
+      const removeFavoriteCity = async (city: City) => {
+
+      }
 
       const fetchCityOptions = async (): Promise<void> => {
-        if (!city.value) return; // Previne chamadas desnecessárias
+        if (!city.value) return;
         try {
           const data = await findCity(city.value);
           if (data.count > 1) {
@@ -114,6 +160,10 @@
         cityOptions,
         weatherData,
         errorMessage,
+        canAddFavorite,
+        isFavorite,
+        addFavoriteCity,
+        removeFavoriteCity,
         fetchCityOptions,
         selectCity,
         roundedTemp,
@@ -254,5 +304,17 @@
     color: #721c24;
     border-radius: 4px;
     border: 1px solid #f5c6cb;
+  }
+
+  .favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #ccc;
+  }
+
+  .favorite-btn.favorite {
+    color: red;
   }
 </style>
