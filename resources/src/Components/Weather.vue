@@ -1,5 +1,8 @@
 <template>
   <div class="weather-container">
+    <div v-if="isVisible" class="message-container" :class="{'success': message.includes('added'), 'error': message.includes('failed')}">
+      {{ message }}
+    </div>
     <form @submit.prevent="fetchCityOptions" class="city-form">
       <label for="city">City:</label>
       <input
@@ -34,7 +37,8 @@
                 <button 
                   @click.stop="isFavorite(option) ? removeFavoriteCity(option) : addFavoriteCity(option)" 
                   :class="['favorite-btn', { favorite: isFavorite(option) }]"
-                  :disabled="!isFavorite(option) && !canAddFavorite">
+                  :disabled="!isFavorite(option) && !canAddFavorite"
+                  :title="favoriteButtonMessage(option)">
                   ♥
                 </button>
               </span>
@@ -52,10 +56,6 @@
         </li>
       </ul>
     </div>
-
-    <div v-if="errorMessage" class="error-message">
-      <p>{{ errorMessage }}</p>
-    </div>
   </div>
 </template>
 
@@ -71,8 +71,19 @@
       const city = ref<string>('');
       const cityOptions = ref<City[]>([]);
       const weatherData = ref<WeatherData | null>(null);
-      const errorMessage = ref<string | null>(null);  
       const favorites = ref<FavoriteCity[]>([]);
+
+      const message = ref('');
+      const isVisible = ref(false);
+
+      const showMessage = (msg: string, success: boolean) => {
+        message.value = msg;
+        isVisible.value = true;
+        
+        setTimeout(() => {
+          isVisible.value = false;
+        }, 3000);
+      };
 
       // Get favorites
       onMounted(() => {
@@ -80,6 +91,19 @@
       });
 
       const canAddFavorite = computed(() => favorites.value.length < 3);
+      const favoriteButtonMessage = computed(() => {
+        return (option: string) => {
+          if (!canAddFavorite) {
+            return "Cannot add more than 3 cities";
+          }
+
+          if (isFavorite(option)) {
+            return "Remove from favorites";
+          } else {
+            return "Add to favorites";
+          }
+        };
+      });
 
       const isFavorite = (city: City) => {
         return favorites.value.some(favorite => favorite.city_id === city.id);
@@ -95,32 +119,39 @@
       };
 
       const addFavoriteCity = async (city: City) => {
-       try {
+        if (favorites.value.length >= 3) {
+          showMessage("You can't add more than 3 favorite cities.", false);
+          return;
+        }
+
+        try {
           const response = await addFavorite(city);
 
           if (response && response.success) {
-            //props.favorites.push(response.favorite);
-            // Success message
             fetchFavorites();
+            showMessage("City added to favorites!", true);
           } else {
-            /*const index = props.favorites.findIndex(fav => fav.city_id === city.id);
-            if (index !== -1) props.favorites.splice(index, 1);*/
-            // Error message
+            showMessage("Failed to add city to favorites.", false);
           }
         } catch (error) {
-          handleError("Fail to add city:", error);
+          showMessage("Fail to add city to favorites: " + error, false);
         }
-      }
+      };
 
       const removeFavoriteCity = async (city: City) => {
-        const response = await removeFavorite(city.id);
+        try {
+          const response = await removeFavorite(city.id);
 
-        if (response && response.success) {
-          fetchFavorites();
-        } else {
-
+          if (response && response.success) {
+            fetchFavorites();
+            showMessage("City removed from favorites!", true);
+          } else {
+            showMessage("Failed to remove city from favorites.", false);
+          }
+        } catch (error) {
+          showMessage("An error occurred while removing the city: " + error, false);
         }
-      }
+      };
 
       const fetchCityOptions = async (): Promise<void> => {
         if (!city.value) return;
@@ -132,10 +163,10 @@
           } else if (data.count === 1) {
             await fetchWeatherForecast(data.list[0].coord.lat, data.list[0].coord.lon);
           } else {
-            errorMessage.value = 'City not found';
+            showMessage("City not found", false);
           }
         } catch (error: any) {
-          handleError('Error fetching city options', error);
+          showMessage("Error fetching city options", false);
         }
       };
 
@@ -146,20 +177,13 @@
       const fetchWeatherForecast = async (lat: number, lon: number): Promise<void> => {
         try {
           weatherData.value = await getWeather(lat, lon);
-          errorMessage.value = null;
         } catch (error: any) {
-          handleError('Failed to fetch weather forecast', error);
+          showMessage("Failed to fetch weather forecast", false);
         }
       };
 
       const resetWeatherData = (): void => {
         weatherData.value = null;
-        errorMessage.value = null;
-      };
-
-      const handleError = (message: string, error: any): void => {
-        errorMessage.value = `${message}: ${error.message}`;
-        console.error(message, error);
       };
 
       const roundedTemp = (temp: number): number => Math.round(temp);
@@ -168,10 +192,12 @@
         `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
       return {
+        favoriteButtonMessage,
+        message,
+        isVisible,
         city,
         cityOptions,
         weatherData,
-        errorMessage,
         canAddFavorite,
         isFavorite,
         addFavoriteCity,
@@ -328,5 +354,37 @@
 
   .favorite-btn.favorite {
     color: red;
+  }
+
+  .message-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 8px;
+    font-size: 16px;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+    z-index: 1000;
+  }
+
+  .success {
+    background-color: green;
+  }
+
+  .error {
+    background-color: red;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 </style>
