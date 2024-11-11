@@ -23,6 +23,11 @@
       const message = ref('');
       const isVisible = ref(false);
 
+      // Get favorites
+      onMounted(() => {
+        fetchFavorites();
+      });
+
       const showMessage = (msg: string, success: boolean) => {
         message.value = msg;
         isVisible.value = true;
@@ -31,11 +36,6 @@
           isVisible.value = false;
         }, 3000);
       };
-
-      // Get favorites
-      onMounted(() => {
-        fetchFavorites();
-      });
 
       const fetchFavorites = async () => {
         try {
@@ -179,15 +179,6 @@
     background-color: #0056b3;
   }
 
-  .error-message {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f8d7da;
-    color: #721c24;
-    border-radius: 4px;
-    border: 1px solid #f5c6cb;
-  }
-
   .message-container {
     position: fixed;
     top: 50%;
@@ -198,7 +189,6 @@
     color: white;
     border-radius: 8px;
     font-size: 16px;
-    opacity: 0;
     animation: fadeIn 0.5s forwards;
     z-index: 1000;
   }
