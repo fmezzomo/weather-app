@@ -16,7 +16,7 @@
         </li>
       </ul>
     </div>
-  </template>
+</template>
   
   <script lang="ts">
     import { defineComponent, PropType, ref } from 'vue';
@@ -43,7 +43,6 @@
         };
   
         const removeCity = (city: City) => {
-
             emit('remove-favorite', city);
         };
   

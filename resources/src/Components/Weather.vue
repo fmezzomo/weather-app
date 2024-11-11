@@ -82,17 +82,19 @@
       };
 
       const removeFavoriteCity = async (city: City) => {
-        try {
-          const response = await removeFavorite(city.id);
+        if(confirm('Are you sure you want to delete this city from your favorites? This action cannot be undone.?')) {
+          try {
+            const response = await removeFavorite(city.id);
 
-          if (response && response.success) {
-            fetchFavorites();
-            showMessage("City removed from favorites!", true);
-          } else {
-            showMessage("Failed to remove city from favorites.", false);
+            if (response && response.success) {
+              fetchFavorites();
+              showMessage("City removed from favorites!", true);
+            } else {
+              showMessage("Failed to remove city from favorites.", false);
+            }
+          } catch (error) {
+            showMessage("An error occurred while removing the city: " + error, false);
           }
-        } catch (error) {
-          showMessage("An error occurred while removing the city: " + error, false);
         }
       };
 
