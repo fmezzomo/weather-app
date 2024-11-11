@@ -48,6 +48,30 @@
         };
       });
 
+      const groupedForecasts = computed(() => {
+        if (!weatherData.value || !weatherData.value.list) {
+          return {};
+        }
+
+        const forecastsByDay: { [date: string]: Array<typeof weatherData.value.list[0]> } = {};
+
+        weatherData.value.list.forEach(forecast => {
+          const date = new Date(forecast.dt * 1000).toLocaleDateString('en-US', {
+            weekday: 'long', 
+            month: 'short', 
+            day: 'numeric'
+          });
+
+          if (!forecastsByDay[date]) {
+            forecastsByDay[date] = [];
+          }
+
+          forecastsByDay[date].push(forecast);
+        });
+
+        return forecastsByDay;
+      });
+
       const isFavorite = (city: City) => {
         return favorites.value.some(favorite => favorite.city.id === city.id);
       };
@@ -133,10 +157,18 @@
 
       const roundedTemp = (temp: number): number => Math.round(temp);
 
+      const formatTime = (timestamp: number): string => {
+          return new Date(timestamp * 1000).toLocaleTimeString('en-US', {
+              hour: '2-digit', 
+              minute: '2-digit'
+          });
+      };
+
       const getWeatherIconUrl = (iconCode: string): string =>
         `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
       return {
+        groupedForecasts,
         favorites,
         favoriteButtonMessage,
         message,
@@ -151,9 +183,10 @@
         fetchCityOptions,
         selectCity,
         roundedTemp,
+        formatTime,
         getWeatherIconUrl
       };
-    }
+    },
   });
 </script>
 
@@ -195,7 +228,7 @@
               </span>
               <span>{{ roundedTemp(option.main.temp) }}°C</span>
               <span>
-                <img :src="getWeatherIconUrl(option.weather[0].icon)" :alt="option.weather[0].description" width="50" height="50">
+                <img :src="getWeatherIconUrl(option.weather[0].icon)" :title="option.weather[0].description" width="50" height="50">
               </span>
               <span class="sub" style="width: 150px; text-align: right;">
                 {{ option.coord.lat }}, {{ option.coord.lon }}
@@ -216,12 +249,19 @@
     </div>
 
     <div v-if="weatherData" class="weather-data">
-      <h2>Weather for {{ weatherData.city.name }}, {{ weatherData.city.country }}</h2>
-      <ul class="forecast-list">
-        <li v-for="forecast in weatherData.list" :key="forecast.dt" class="forecast-item">
-          <p>{{ new Date(forecast.dt * 1000).toLocaleString() }}: {{ forecast.main.temp }}°C, {{ forecast.weather[0].description }}</p>
-        </li>
-      </ul>
+        <h2>Weather for {{ weatherData.city.name }}, {{ weatherData.city.country }}</h2>
+        <ul class="daily-forecast-list">
+            <li v-for="(forecasts, date) in groupedForecasts" :key="date" class="daily-forecast-item">
+                <h3>{{ date }}</h3>
+                <ul class="hourly-forecast-list">
+                    <li v-for="forecast in forecasts" :key="forecast.dt" class="hourly-forecast-item">
+                        <span class="forecast-time">{{ formatTime(forecast.dt) }}</span>
+                        <span class="forecast-temp">{{ forecast.main.temp }}°C</span>
+                        <img :src="getWeatherIconUrl(forecast.weather[0].icon)" :alt="forecast.weather[0].description" class="forecast-icon" />
+                    </li>
+                </ul>
+            </li>
+        </ul>
     </div>
   </div>
 </template>
@@ -401,5 +441,42 @@
     to {
       opacity: 1;
     }
+  }
+
+  .daily-forecast-list {
+      list-style: none;
+      padding: 0;
+  }
+  .daily-forecast-item {
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+  }
+  .hourly-forecast-list {
+      list-style: none;
+      padding: 0;
+  }
+  .hourly-forecast-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 8px 0;
+      font-size: 1rem;
+      color: #333;
+      border-bottom: 1px solid #eee;
+  }
+
+  .forecast-time {
+      flex: 1;
+      font-weight: bold;
+      color: #007BFF;
+  }
+  .forecast-temp {
+      flex: 1;
+      font-size: 1.1rem;
+      color: #ff5722;
+  }
+  .forecast-icon {
+      width: 40px;
+      height: 40px;
   }
 </style>
