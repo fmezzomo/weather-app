@@ -8,6 +8,7 @@ export async function getFavorites(): Promise<FavoriteCity[]> {
     id: favorite.id,
     userID: favorite.user_id,
     city: {
+      id: favorite.city_id,
       name: favorite.city_name,
       coord: {
         lat: favorite.lat,
