@@ -35,14 +35,14 @@
 
       const canAddFavorite = computed(() => favorites.value.length < 3);
       const favoriteButtonMessage = computed(() => {
-        return (option: string) => {
-          if (!canAddFavorite) {
-            return "Cannot add more than 3 cities";
-          }
-
-          if (isFavorite(option)) {
+        return (city: City) => {
+          
+          if (isFavorite(city)) {
             return "Remove from favorites";
           } else {
+            if (!canAddFavorite.value) {
+              return "Cannot add more than 3 cities";
+            }
             return "Add to favorites";
           }
         };
