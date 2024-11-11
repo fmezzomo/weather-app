@@ -35,7 +35,7 @@ class FavoriteCity extends Model
                 ], 400 );
             }
     
-            self::create([
+            $favorite = self::create([
                 'user_id'   => $userId,
                 'city_id'   => $city['id'],
                 'city_name' => $city['name'],
@@ -43,11 +43,21 @@ class FavoriteCity extends Model
                 'lat'       => $city['coord']['lat'],
                 'lon'       => $city['coord']['lon'],
             ]);
+
+            if ( $favorite ) {
+                return response()->json( [
+                    'success'  => true,
+                    'message'  => 'City added successfully!',
+                    'favorite' => $favorite
+                ], 201 );
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Fail to add the favorite city'
+                ], 500);
+            }
     
-            return response()->json( [
-                'success' => true,
-                'message' => 'City added successfully!'
-            ], 201 );
+            
     
         } catch ( QueryException $e ) {
             return response()->json([

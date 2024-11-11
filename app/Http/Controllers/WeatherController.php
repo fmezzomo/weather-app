@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\WeatherData;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class WeatherController extends Controller
 {
@@ -47,10 +49,8 @@ class WeatherController extends Controller
         return response()->json( [ 'error' => 'City not found' ], 404 );
     }
 
-    public function getWeather( Request $request )
+    public function getWeather( $lat, $lon )
     {
-        $lat = $request->query('lat');
-        $lon = $request->query('lon');
         $apiKey = env('VITE_API_KEY');
         $apiURL = env('VITE_API_URL');
 
@@ -62,12 +62,9 @@ class WeatherController extends Controller
         ]);
 
         if ( $response->successful() ) {
-            return response()->json ($response->json() );
+            return response()->json ( $response->json() );
         }
 
         return response()->json ([ 'error' => 'Unable to fetch weather data' ], 500 );
     }
 }
-
-
-

@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/find/{city}', [ WeatherController::class, 'findCity' ] );
-Route::get( '/weather', [ WeatherController::class, 'getWeather' ] );
+Route::get( '/weather/{lat}/{lon}', [ WeatherController::class, 'getWeather' ] );
 
 Route::get('/favorites', [FavoriteCityController::class, 'index']);
 Route::post('/favorites', [FavoriteCityController::class, 'store']);
