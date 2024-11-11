@@ -1,71 +1,14 @@
-<template>
-  <div class="weather-container">
-    <div v-if="isVisible" class="message-container" :class="{'success': message.includes('added'), 'error': message.includes('failed')}">
-      {{ message }}
-    </div>
-    <form @submit.prevent="fetchCityOptions" class="city-form">
-      <label for="city">City:</label>
-      <input
-        type="text"
-        id="city"
-        v-model="city"
-        placeholder="Enter city"
-        required
-        class="city-input"
-      />
-      <button type="submit" class="submit-button">Search</button>
-    </form>
-
-    <div v-if="!weatherData && cityOptions.length > 1" class="city-options">
-      <h3>Select a City</h3>
-      <ul>
-        <li v-for="option in cityOptions" :key="option.id" @click="selectCity(option)">
-          <div class="city-option-button">
-            <div class="city-option-info">
-              <span style="width: 140px;">
-                {{ option.name }}, {{ option.sys.country }}
-                <img :src="'https://openweathermap.org/images/flags/' + option.sys.country.toLowerCase() + '.png'" class="flag">
-              </span>
-              <span>{{ roundedTemp(option.main.temp) }}°C</span>
-              <span>
-                <img :src="getWeatherIconUrl(option.weather[0].icon)" :alt="option.weather[0].description" width="50" height="50">
-              </span>
-              <span class="sub" style="width: 150px; text-align: right;">
-                {{ option.coord.lat }}, {{ option.coord.lon }}
-              </span>
-              <span>
-                <button 
-                  @click.stop="isFavorite(option) ? removeFavoriteCity(option) : addFavoriteCity(option)" 
-                  :class="['favorite-btn', { favorite: isFavorite(option) }]"
-                  :disabled="!isFavorite(option) && !canAddFavorite"
-                  :title="favoriteButtonMessage(option)">
-                  ♥
-                </button>
-              </span>
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <div v-if="weatherData" class="weather-data">
-      <h2>Weather for {{ weatherData.city.name }}, {{ weatherData.city.country }}</h2>
-      <ul class="forecast-list">
-        <li v-for="forecast in weatherData.list" :key="forecast.dt" class="forecast-item">
-          <p>{{ new Date(forecast.dt * 1000).toLocaleString() }}: {{ forecast.main.temp }}°C, {{ forecast.weather[0].description }}</p>
-        </li>
-      </ul>
-    </div>
-  </div>
-</template>
-
 <script lang="ts">
   import { defineComponent, ref, computed, onMounted } from 'vue';
   import { findCity, getWeather } from '@/services/WeatherService';
   import { getFavorites, addFavorite, removeFavorite } from '@/services/FavoriteService';
   import { City, WeatherData, FavoriteCity } from '@/services/Types';
+  import FavoritesCities from '@/Components/FavoritesCities.vue';
 
   export default defineComponent({
+    components: {
+      FavoritesCities,
+    },
     name: 'Weather',
     setup() {
       const city = ref<string>('');
@@ -192,6 +135,7 @@
         `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
       return {
+        favorites,
         favoriteButtonMessage,
         message,
         isVisible,
@@ -210,6 +154,74 @@
     }
   });
 </script>
+
+<template>
+  <div class="weather-container">
+    <div v-if="isVisible" class="message-container" :class="{'success': message.includes('added'), 'error': message.includes('failed')}">
+      {{ message }}
+    </div>
+
+    <FavoritesCities
+      class="favorities-cities"
+      :favoriteCities="favorites"
+      @city-clicked="selectCity"
+    />
+
+    <form @submit.prevent="fetchCityOptions" class="city-form">
+      <label for="city">City:</label>
+      <input
+        type="text"
+        id="city"
+        v-model="city"
+        placeholder="Enter city"
+        required
+        class="city-input"
+      />
+      <button type="submit" class="submit-button">Search</button>
+    </form>
+
+    <div v-if="!weatherData && cityOptions.length > 1" class="city-options">
+      <h3>Select a City</h3>
+      <ul>
+        <li v-for="option in cityOptions" :key="option.id" @click="selectCity(option)">
+          <div class="city-option-button">
+            <div class="city-option-info">
+              <span style="width: 140px;">
+                {{ option.name }}, {{ option.sys.country }}
+                <img :src="'https://openweathermap.org/images/flags/' + option.sys.country.toLowerCase() + '.png'" class="flag">
+              </span>
+              <span>{{ roundedTemp(option.main.temp) }}°C</span>
+              <span>
+                <img :src="getWeatherIconUrl(option.weather[0].icon)" :alt="option.weather[0].description" width="50" height="50">
+              </span>
+              <span class="sub" style="width: 150px; text-align: right;">
+                {{ option.coord.lat }}, {{ option.coord.lon }}
+              </span>
+              <span>
+                <button 
+                  @click.stop="isFavorite(option) ? removeFavoriteCity(option) : addFavoriteCity(option)" 
+                  :class="['favorite-btn', { favorite: isFavorite(option) }]"
+                  :disabled="!isFavorite(option) && !canAddFavorite"
+                  :title="favoriteButtonMessage(option)">
+                  ♥
+                </button>
+              </span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div v-if="weatherData" class="weather-data">
+      <h2>Weather for {{ weatherData.city.name }}, {{ weatherData.city.country }}</h2>
+      <ul class="forecast-list">
+        <li v-for="forecast in weatherData.list" :key="forecast.dt" class="forecast-item">
+          <p>{{ new Date(forecast.dt * 1000).toLocaleString() }}: {{ forecast.main.temp }}°C, {{ forecast.weather[0].description }}</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
 
 <style scoped>
   .weather-container {

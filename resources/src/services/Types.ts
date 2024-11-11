@@ -27,6 +27,7 @@ export interface City {
   }
 
   export interface FavoriteCity {
+    id: number;
     userID: number;
     city: City;
   }

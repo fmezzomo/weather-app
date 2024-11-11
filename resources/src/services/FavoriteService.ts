@@ -3,7 +3,23 @@ import { City, FavoriteCity } from './Types';
 
 export async function getFavorites(): Promise<FavoriteCity[]> {
   const response = await axios.get('/api/favorites');
-  return response.data;
+
+  const favoriteCities: FavoriteCity[] = response.data.map((favorite: any) => ({
+    id: favorite.id,
+    userID: favorite.user_id,
+    city: {
+      name: favorite.city_name,
+      coord: {
+        lat: favorite.lat,
+        lon: favorite.lon,
+      },
+      sys: {
+        country: favorite.country
+      }
+    }
+  }));
+
+  return favoriteCities;
 }
 
 export async function addFavorite(city: City) {
