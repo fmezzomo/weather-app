@@ -126,11 +126,9 @@
         if (!city.value) return;
         try {
           const data = await findCity(city.value);
-          if (data.count > 1) {
+          if (data.count >= 1) {
             cityOptions.value = data.list;
             resetWeatherData();
-          } else if (data.count === 1) {
-            await fetchWeatherForecast(data.list[0].coord.lat, data.list[0].coord.lon);
           } else {
             showMessage("City not found", false);
           }
@@ -216,13 +214,13 @@
       <button type="submit" class="submit-button">Search</button>
     </form>
 
-    <div v-if="!weatherData && cityOptions.length > 1" class="city-options">
+    <div v-if="!weatherData && cityOptions.length >= 1" class="city-options">
       <h3>Select a City</h3>
       <ul>
         <li v-for="option in cityOptions" :key="option.id" @click="selectCity(option)">
           <div class="city-option-button">
             <div class="city-option-info">
-              <span style="width: 140px;">
+              <span style="width: 250px;">
                 {{ option.name }}, {{ option.sys.country }}
                 <img :src="'https://openweathermap.org/images/flags/' + option.sys.country.toLowerCase() + '.png'" class="flag">
               </span>
