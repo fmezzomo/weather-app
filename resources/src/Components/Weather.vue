@@ -49,7 +49,7 @@
       });
 
       const isFavorite = (city: City) => {
-        return favorites.value.some(favorite => favorite.city_id === city.id);
+        return favorites.value.some(favorite => favorite.city.id === city.id);
       };
 
       const fetchFavorites = async () => {
