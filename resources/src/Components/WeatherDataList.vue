@@ -101,48 +101,48 @@
     }
 
     @keyframes fadeIn {
-    from {
-      opacity: 0;
+        from {
+            opacity: 0;
+        }
+        to {
+        opacity: 1;
+        }
     }
-    to {
-      opacity: 1;
+
+    .daily-forecast-list {
+        list-style: none;
+        padding: 0;
     }
-  }
+    .daily-forecast-item {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    .hourly-forecast-list {
+        list-style: none;
+        padding: 0;
+    }
+    .hourly-forecast-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 8px 0;
+        font-size: 1rem;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
 
-  .daily-forecast-list {
-      list-style: none;
-      padding: 0;
-  }
-  .daily-forecast-item {
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-  }
-  .hourly-forecast-list {
-      list-style: none;
-      padding: 0;
-  }
-  .hourly-forecast-item {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 8px 0;
-      font-size: 1rem;
-      color: #333;
-      border-bottom: 1px solid #eee;
-  }
-
-  .forecast-time {
-      flex: 1;
-      font-weight: bold;
-      color: #007BFF;
-  }
-  .forecast-temp {
-      flex: 1;
-      font-size: 1.1rem;
-      color: #ff5722;
-  }
-  .forecast-icon {
-      width: 40px;
-      height: 40px;
-  }
+    .forecast-time {
+        flex: 1;
+        font-weight: bold;
+        color: #007BFF;
+    }
+    .forecast-temp {
+        flex: 1;
+        font-size: 1.1rem;
+        color: #ff5722;
+    }
+    .forecast-icon {
+        width: 40px;
+        height: 40px;
+    }
 </style>

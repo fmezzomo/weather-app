@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defineComponent, ref, computed, onMounted } from 'vue';
+  import { defineComponent, ref, onMounted } from 'vue';
   import { findCity, getWeather } from '@/services/WeatherService';
   import { getFavorites } from '@/services/FavoriteService';
   import { City, WeatherData, FavoriteCity } from '@/services/Types';
@@ -77,6 +77,14 @@
         weatherData.value = null;
       };
 
+      const citiesListRef = ref(null);
+
+      const callRemoveFavoriteCity = (city: City) => {
+        if (citiesListRef.value) {
+          citiesListRef.value.removeFavoriteCity(city);
+        }
+      };
+
       return {
         favorites,
         message,
@@ -89,6 +97,8 @@
         showMessage,
         city,
         cityOptions,
+        citiesListRef,
+        callRemoveFavoriteCity,
       };
     },
   });
@@ -104,7 +114,7 @@
       class="favorities-cities"
       :favoriteCities="favorites"
       @city-clicked="selectCity"
-      @remove-favorite="removeFavoriteCity"
+      @remove-favorite="callRemoveFavoriteCity"
     />
 
     <form @submit.prevent="fetchCityOptions" class="city-form">
@@ -121,6 +131,7 @@
     </form>
 
     <CitiesList
+      ref="citiesListRef"
       :showCities="!weatherData"
       :favorites="favorites"
       :cityOptions="cityOptions"
