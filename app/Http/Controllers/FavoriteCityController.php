@@ -15,7 +15,7 @@ class FavoriteCityController extends Controller
 
     public function index( Request $request )
     {
-        $user           = User::find( 1 );//Auth::user();
+        $user           = Auth::user();
         $favoriteCities = FavoriteCity::where( 'user_id', $user->id )->get();
 
         return response()->json($favoriteCities);
@@ -33,7 +33,7 @@ class FavoriteCityController extends Controller
         ]);
 
         $cityData = $request->input( 'city' );
-        $user     = User::find( 1 );//Auth::user();
+        $user     = Auth::user();
         
         $FavoriteCity     = new FavoriteCity();
         $favoriteResponse = $FavoriteCity->addFavorite( $user->id, $cityData );
@@ -51,7 +51,7 @@ class FavoriteCityController extends Controller
 
     public function destroy( $cityId )
     {
-        $user = User::find( 1 );//Auth::user();
+        $user = Auth::user();
 
         $FavoriteCity = new FavoriteCity();
         return $FavoriteCity->removeFavorite( $user->id, $cityId );

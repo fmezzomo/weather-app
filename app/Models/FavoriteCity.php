@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\QueryException;
 
 class FavoriteCity extends Model
@@ -93,5 +94,12 @@ class FavoriteCity extends Model
                 'message' => 'Fail to remove the favorite city: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    // Organizar codigo
+    public function forecastCity(): BelongsToMany
+    {
+        return $this->belongsToMany(City::class, 'user_favorite_cities', 'user_id', 'city_id')
+                    ->withTimestamps();
     }
 }

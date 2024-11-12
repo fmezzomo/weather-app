@@ -2,7 +2,7 @@ import axios from 'axios';
 import { City, FavoriteCity } from './Types';
 
 export async function getFavorites(): Promise<FavoriteCity[]> {
-  const response = await axios.get('/api/favorites');
+  const response = await axios.get('/favorites');
 
   const favoriteCities: FavoriteCity[] = response.data.map((favorite: any) => ({
     id: favorite.id,
@@ -24,11 +24,11 @@ export async function getFavorites(): Promise<FavoriteCity[]> {
 }
 
 export async function addFavorite(city: City) {
-  const response = await axios.post('/api/favorites', { city });
+  const response = await axios.post('/favorites', { city });
   return response.data;
 }
 
 export async function removeFavorite(cityId: number): Promise<void> {
-  const response = await axios.delete(`/api/favorites/${cityId}`);
+  const response = await axios.delete(`/favorites/${cityId}`);
   return response.data;
 }
