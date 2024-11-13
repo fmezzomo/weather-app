@@ -115,6 +115,8 @@
       :favoriteCities="favorites"
       @city-clicked="selectCity"
       @remove-favorite="callRemoveFavoriteCity"
+      @fetch-favorites="fetchFavorites"
+      @show-message="showMessage"
     />
 
     <form @submit.prevent="fetchCityOptions" class="city-form">

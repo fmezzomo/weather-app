@@ -1,11 +1,7 @@
 <template>
-    {{ cityOptions }}
     <div class="fav-cities">
-        <h2>
-            MY CITIES
-            <span class="toggle-link" @click="toggleCities">
-                ({{ isExpanded ? 'Hide' : 'Show' }})
-            </span>
+        <h2 @click="toggleCities" title="Show/Hide">
+            MY FAVORITE CITIES
         </h2>
         <CitiesList
             ref="citiesListRef"
@@ -14,6 +10,8 @@
             :cityOptions="cityOptions"
             :showFavorite="true"
             @selectCity="handleClick"
+            @fetch-favorites="handleFetchFavorites"
+            @show-message="handleShowMessage"
         />
     </div>
 </template>
@@ -102,15 +100,20 @@
             emit('city-clicked', city);
         };
   
-        const removeCity = (city: City) => {
-            emit('remove-favorite', city);
+        const handleFetchFavorites = () => {
+            emit('fetch-favorites');
+        };
+
+        const handleShowMessage = (message: String, success: boolean) => {
+            emit('show-message', message, success);
         };
   
         return {
           isExpanded,
           toggleCities,
           handleClick,
-          removeCity,
+          handleFetchFavorites,
+          handleShowMessage,
           cityOptions,
         };
       },
@@ -118,32 +121,16 @@
   </script>
   
   <style lang="css" scoped>
-    .fav-cities {
-      margin: 20px 0;
-      font-family: 'Arial', sans-serif;
-      color: #333;
-    }
-  
     .fav-cities h2 {
-      font-size: 24px;
-      color: #2c3e50;
-      margin-bottom: 10px;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-  
-    .toggle-link {
-      font-size: 14px;
-      color: #3498db;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-  
-    .toggle-link:hover {
-      color: #2980b9;
+        font-size: 24px;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
     }
 
   </style>
