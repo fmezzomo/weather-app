@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\QueryException;
+use App\Models\ForecastFavorite;
 
 class FavoriteCity extends Model
 {
@@ -96,10 +97,8 @@ class FavoriteCity extends Model
         }
     }
 
-    // Organizar codigo
-    public function forecastCity(): BelongsToMany
+    public function forecast(): HasOne
     {
-        return $this->belongsToMany(City::class, 'user_favorite_cities', 'user_id', 'city_id')
-                    ->withTimestamps();
+        return $this->hasOne(ForecastFavorite::class, 'favorite_id');
     }
 }

@@ -3,7 +3,7 @@ import { City, FavoriteCity } from './Types';
 
 export async function getFavorites(): Promise<FavoriteCity[]> {
   const response = await axios.get('/favorites');
-
+  
   const favoriteCities: FavoriteCity[] = response.data.map((favorite: any) => ({
     id: favorite.id,
     userID: favorite.user_id,
@@ -16,7 +16,8 @@ export async function getFavorites(): Promise<FavoriteCity[]> {
       },
       sys: {
         country: favorite.country
-      }
+      },
+      forecast: favorite.forecast ? JSON.parse(favorite.forecast.forecast_data) : ''
     }
   }));
 

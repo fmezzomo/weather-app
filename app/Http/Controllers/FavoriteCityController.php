@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FavoriteCity;
-use Illuminate\Foundation\Auth\User;
+use App\Models\ForecastFavorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,11 @@ class FavoriteCityController extends Controller
     public function index( Request $request )
     {
         $user           = Auth::user();
-        $favoriteCities = FavoriteCity::where( 'user_id', $user->id )->get();
+        $favoriteCities = FavoriteCity::where('user_id', $user->id)
+            ->with(['forecast' => function ($query) {
+                $query->where('end_date', '>=', now());
+            }])
+            ->get();
 
         return response()->json($favoriteCities);
     }
@@ -64,12 +68,11 @@ class FavoriteCityController extends Controller
 
         $endDate = Carbon::now()->addDays($this->daysToAdd)->format('Y-m-d');
 
-        DB::table('forecast_favorite')->insert([
+        $forecastFavorite = new ForecastFavorite([
             'favorite_id'   => $favorite->id,
             'end_date'      => $endDate,
-            'forecast_data' => json_encode( $forecastData ),
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'forecast_data' => json_encode($forecastData),
         ]);
+        $forecastFavorite->save();
     }
 }

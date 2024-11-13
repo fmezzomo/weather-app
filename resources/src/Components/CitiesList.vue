@@ -48,7 +48,7 @@
         }
       };
 
-      const removeFavoriteCity = async (city: City) => {
+      const removeFavoriteCity = async (city: City) => { console.log('ss')
         if(confirm('Are you sure you want to delete this city from your favorites? This action cannot be undone.?')) {
           try {
             const response = await removeFavorite(city.id);
@@ -136,71 +136,71 @@
 </template>
 
 <style scoped>
-  .city-options {
-    margin-top: 20px;
-  }
+    .city-options {
+        margin-top: 20px;
+    }
 
-  .city-options h3 {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-  }
+    .city-options h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
 
-  .city-option-item {
-    list-style-type: none;
-  }
+    .city-option-item {
+        list-style-type: none;
+    }
 
-  .city-option-button {
-    display: block;
-    padding: 10px;
-    width: 100%;
-    color: #000;
-    border: none;
-    border-radius: 4px;
-    text-align: left;
-    cursor: pointer;
-  }
+    .city-option-button {
+        display: block;
+        padding: 10px;
+        width: 100%;
+        color: #000;
+        border: none;
+        border-radius: 4px;
+        text-align: left;
+        cursor: pointer;
+    }
 
-  .city-option-button:hover {
-    background-color: #eff0f3;
-  }
+    .city-option-button:hover {
+        background-color: #eff0f3;
+    }
 
-  .city-option-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    .city-option-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-  .flag {
-    display: inline-block;
-    vertical-align: initial;
-  }
+    .flag {
+        display: inline-block;
+        vertical-align: initial;
+    }
 
-  .city-name {
-    width: 200px;
-    display: flex;
-    align-items: center;
-  }
+    .city-name {
+        width: 200px;
+        display: flex;
+        align-items: center;
+    }
 
-  .city-weather {
-    width: 120px;
-    text-align: center;
-  }
+    .city-weather {
+        width: 120px;
+        text-align: center;
+    }
 
-  .city-coordinates {
-    width: 160px;
-    text-align: right;
-    font-size: 0.9rem;
-  }
+    .city-coordinates {
+        width: 160px;
+        text-align: right;
+        font-size: 0.9rem;
+    }
 
     .favorite-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5em;
-    color: #ccc;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5em;
+        color: #ccc;
     }
 
     .favorite-btn.favorite {
-    color: red;
+        color: red;
     }
 </style>

@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\WeatherData;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class WeatherController extends Controller
 {

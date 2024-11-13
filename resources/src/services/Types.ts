@@ -8,6 +8,7 @@ export interface City {
     sys: {
       country: string;
     };
+    forecast: string;
   }
   
   export interface WeatherData {
