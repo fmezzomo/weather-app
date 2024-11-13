@@ -11,18 +11,33 @@ use Illuminate\Support\Facades\DB;
 
 class FavoriteCityController extends Controller
 {
-    protected $daysToAdd = 7;
+    protected $daysToAdd = 3;
 
-    public function index( Request $request )
+    public function index(Request $request)
     {
-        $user           = Auth::user();
-        $favoriteCities = FavoriteCity::where('user_id', $user->id)
-            ->with(['forecast' => function ($query) {
-                $query->where('end_date', '>=', now());
-            }])
+        $user = Auth::user();
+
+        // Fetch cities and their forecasts where the end_date is greater than or equal to the current time
+        $favoriteCities = FavoriteCity::where( 'user_id', $user->id )
+            ->with( [ 'forecast' => function ( $query ) {
+                $query->where( 'end_date', '>=', now() );
+            } ] )
             ->get();
 
-        return response()->json($favoriteCities);
+        // If there's no forecast or it expired, fetch fresh data
+        foreach ( $favoriteCities as $favoriteCity ) {
+            $forecast = isset( $favoriteCity->forecast ) ? $favoriteCity->forecast->first() : null;
+            if ( ! $forecast || $forecast->end_date < now() ) {
+                $this->storeForecastData( $favoriteCity );
+
+                $forecast = ForecastFavorite::where('favorite_id', $favoriteCity->id)
+                    ->where('end_date', '>=', now())
+                    ->first();
+            }
+            $favoriteCity->forecast = $forecast;
+        }
+
+        return response()->json( $favoriteCities );
     }
 
     public function store( Request $request )
